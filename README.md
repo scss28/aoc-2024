@@ -1,6 +1,5 @@
-# Building / Running
-Prerequisits:
+## Prerequisits
 - [Zig](https://ziglang.org/) (*the solutions were written with the [master branch](https://github.com/ziglang/zig) version*)
-Commands:
+## Building / Running
 - Building: `zig build -Dday=<number>`
-- Running: `zig build -Dday=<number> run`
+- Running: `zig build -Dday=<number> run`# Building / Running
