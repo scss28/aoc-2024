@@ -1,10 +1,12 @@
 const std = @import("std");
 
-pub fn main() void {
+pub fn main() !void {
     const Int = u32;
 
     // PART 1
     {
+        const start = try std.time.Instant.now();
+
         var sum: Int = 0;
 
         const State = enum {
@@ -59,11 +61,14 @@ pub fn main() void {
             },
         }
 
-        std.debug.print("PART 1: {d}\n", .{sum});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start))) / 1_000_000;
+        std.debug.print("PART 1 (t = {d} ms): {d}\n", .{ time, sum });
     }
 
     // PART 2
     {
+        const start = try std.time.Instant.now();
+
         var sum: Int = 0;
 
         const State = enum {
@@ -128,7 +133,8 @@ pub fn main() void {
             },
         }
 
-        std.debug.print("PART 2: {d}\n", .{sum});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start))) / 1_000_000;
+        std.debug.print("PART 2 (t = {d} ms): {d}\n", .{ time, sum });
     }
 }
 

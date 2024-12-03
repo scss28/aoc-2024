@@ -14,6 +14,8 @@ pub fn main() !void {
 
     // PART 1
     {
+        const start_t = try std.time.Instant.now();
+
         for (0..line_count) |i| {
             const start = i * 14;
             left[i] = std.fmt.parseInt(
@@ -38,11 +40,14 @@ pub fn main() !void {
             sum += if (r > l) r - l else l - r;
         }
 
-        std.debug.print("PART 1: {d}\n", .{sum});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start_t))) / 1_000_000;
+        std.debug.print("PART 1 (t = {d} ms): {d}\n", .{ time, sum });
     }
 
     // PART 2
     {
+        const start = try std.time.Instant.now();
+
         var sum: Int = 0;
 
         // Since the data is already sorted from the previous part
@@ -78,7 +83,8 @@ pub fn main() !void {
             }
         }
 
-        std.debug.print("PART 2: {d}\n", .{sum});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start))) / 1_000_000;
+        std.debug.print("PART 2 (t = {d} ms): {d}\n", .{ time, sum });
     }
 }
 

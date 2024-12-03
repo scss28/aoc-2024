@@ -1,10 +1,12 @@
 const std = @import("std");
 
-pub fn main() void {
+pub fn main() !void {
     const Int = u32;
 
     // PART 1
     {
+        const start_t = try std.time.Instant.now();
+
         var safe_count: usize = 0;
 
         var lines = std.mem.tokenizeScalar(u8, data, '\n');
@@ -38,11 +40,14 @@ pub fn main() void {
             safe_count += 1;
         }
 
-        std.debug.print("PART 1: {d}\n", .{safe_count});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start_t))) / 1_000_000;
+        std.debug.print("PART 1 (t = {d} ms): {d}\n", .{ time, safe_count });
     }
 
     // PART 2 [BROKEN :(]
     {
+        const start_t = try std.time.Instant.now();
+
         var safe_count: usize = 0;
 
         var lines = std.mem.tokenizeScalar(u8, data, '\n');
@@ -82,7 +87,8 @@ pub fn main() void {
             safe_count += 1;
         }
 
-        std.debug.print("PART 2: {d}\n", .{safe_count});
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start_t))) / 1_000_000;
+        std.debug.print("[X] PART 2 (t = {d} ms): {d}\n", .{ time, safe_count });
     }
 }
 
