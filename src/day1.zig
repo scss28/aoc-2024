@@ -4,9 +4,9 @@ pub fn main() !void {
     const gpa = std.heap.page_allocator;
 
     const line_count = 1000;
-    const DataInt = u32;
+    const Int = u32;
 
-    const buffer = try gpa.alloc(DataInt, 2 * line_count);
+    const buffer = try gpa.alloc(Int, 2 * line_count);
     const left, const right = .{
         buffer[0..line_count],
         buffer[line_count..],
@@ -17,22 +17,22 @@ pub fn main() !void {
         for (0..line_count) |i| {
             const start = i * 14;
             left[i] = std.fmt.parseInt(
-                DataInt,
+                Int,
                 data[start .. start + 5],
                 10,
             ) catch unreachable;
 
             right[i] = std.fmt.parseInt(
-                DataInt,
+                Int,
                 data[start + 8 .. start + 13],
                 10,
             ) catch unreachable;
         }
 
-        std.mem.sort(DataInt, left, {}, std.sort.asc(DataInt));
-        std.mem.sort(DataInt, right, {}, std.sort.asc(DataInt));
+        std.mem.sort(Int, left, {}, std.sort.asc(Int));
+        std.mem.sort(Int, right, {}, std.sort.asc(Int));
 
-        var sum: DataInt = 0;
+        var sum: Int = 0;
         for (0..line_count) |i| {
             const l, const r = .{ left[i], right[i] };
             sum += if (r > l) r - l else l - r;
@@ -43,7 +43,7 @@ pub fn main() !void {
 
     // PART 2
     {
-        var sum: DataInt = 0;
+        var sum: Int = 0;
 
         // Since the data is already sorted from the previous part
         // we can use two indices `li` and `ri` to iterate through both
@@ -63,7 +63,7 @@ pub fn main() !void {
                 if (ri == line_count) break :outer;
             }
 
-            var lcount: DataInt = 0;
+            var lcount: Int = 0;
             while (right[ri] == l) : (ri += 1) {
                 lcount += 1;
                 if (ri == line_count) break :outer;
