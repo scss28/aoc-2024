@@ -1,66 +1,101 @@
 const std = @import("std");
 
-pub fn main() void {
-    var xmas_count: usize = 0;
-    for (0..140) |j| {
-        for (0..140) |i| {
-            if (data[i + j * 141] != 'X') continue;
+pub fn main() !void {
+    const input = data;
+    const width: usize = for (input, 0..) |byte, i| {
+        if (byte == '\n') break i;
+    } else unreachable;
 
-            // zig fmt: off
-            if (
-                eqlXmas(i, j, .{ true, null }) or    //  .>
-                eqlXmas(i, j, .{ false, null }) or  // <.
-                eqlXmas(i, j, .{ null, true }) or    //  ^
-                eqlXmas(i, j, .{ null, false }) or  //  v
-                eqlXmas(i, j, .{ true, true }) or     //  ^>
-                eqlXmas(i, j, .{ true, false }) or   //  v>
-                eqlXmas(i, j, .{ false, false }) or // <v
-                eqlXmas(i, j, .{ false, true })      // <^
-            ) {
-                xmas_count += 1;
-            } 
-            // zig fmt: on
-        }
+    var height: usize = 1;
+    for (input) |byte| {
+        if (byte == '\n') height += 1;
     }
 
-    std.debug.print("PART 1: {d}\n", .{xmas_count});
+    // PART 1
+    {
+        const start_t = try std.time.Instant.now();
+
+        var xmas_count: usize = 0;
+        for (0..height) |j| {
+            for (0..width) |i| {
+                if (input[i + j * (width + 1)] != 'X') continue;
+
+                if (eqlMas(input, width, height, i, j, .plus, .zero)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .minus, .zero)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .zero, .plus)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .zero, .minus)) xmas_count += 1;
+
+                if (eqlMas(input, width, height, i, j, .plus, .plus)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .plus, .minus)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .minus, .minus)) xmas_count += 1;
+                if (eqlMas(input, width, height, i, j, .minus, .plus)) xmas_count += 1;
+            }
+        }
+
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start_t))) / 1_000_000;
+        std.debug.print("PART 1 (t = {d} ms): {d}\n", .{ time, xmas_count });
+    }
+
+    // PART 2
+    {
+        const start_t = try std.time.Instant.now();
+
+        var x_mas_count: usize = 0;
+        for (1..height - 1) |j| {
+            for (1..width - 1) |i| {
+                const idx = i + j * (width + 1);
+                if (input[idx] != 'A') continue;
+
+                const bottom_left = input[idx - 1 - (width + 1)];
+                const top_left = input[idx - 1 + (width + 1)];
+
+                const bottom_right = input[idx + 1 - (width + 1)];
+                const top_right = input[idx + 1 + (width + 1)];
+
+                if ((top_left == 'M' and bottom_right == 'S' or top_left == 'S' and bottom_right == 'M') and
+                    (top_right == 'M' and bottom_left == 'S' or top_right == 'S' and bottom_left == 'M') //
+                ) x_mas_count += 1;
+            }
+        }
+
+        const time = @as(f64, @floatFromInt((try std.time.Instant.now()).since(start_t))) / 1_000_000;
+        std.debug.print("PART 2 (t = {d} ms): {d}\n", .{ time, x_mas_count });
+    }
 }
 
-const Direction = enum(u1) { up, down };
+const Direction = enum {
+    minus,
+    zero,
+    plus,
+};
 
-fn eqlXmas(i: usize, j: usize, dir: struct { ?bool, ?bool }) bool {
-    var curr_i = i;
-    var curr_j = j;
+fn eqlMas(
+    input: []const u8,
+    width: usize,
+    height: usize,
+    i: usize,
+    j: usize,
+    di: Direction,
+    dj: Direction,
+) bool {
+    if (di == .plus and i + 4 > width or di == .minus and i < 3) return false;
+    if (dj == .plus and j + 4 > height or dj == .minus and j < 3) return false;
 
-    if (dir[0]) |forward| if (forward) {
-        if (i + 4 > 140) return false;
-        curr_i += 1;
-    } else {
-        if (i < 4) return false;
-        curr_i -= 1;
-    };
+    var idx = i + j * (width + 1);
+    inline for ("MAS") |byte| {
+        switch (di) {
+            .plus => idx += 1,
+            .minus => idx -= 1,
+            .zero => {},
+        }
 
-    if (dir[1]) |forward| if (forward) {
-        if (j + 4 > 140) return false;
-        curr_j += 1;
-    } else {
-        if (j < 4) return false;
-        curr_j -= 1;
-    };
+        switch (dj) {
+            .plus => idx += width + 1,
+            .minus => idx -= width + 1,
+            .zero => {},
+        }
 
-    for ("MAS") |byte| {
-        if (data[curr_i + curr_j * 141] != byte) return false;
-        if (dir[0]) |forward| if (forward) {
-            curr_i += 1;
-        } else {
-            curr_i -= 1;
-        };
-
-        if (dir[1]) |forward| if (forward) {
-            curr_j += 1;
-        } else {
-            curr_j -= 1;
-        };
+        if (input[idx] != byte) return false;
     }
 
     return true;
